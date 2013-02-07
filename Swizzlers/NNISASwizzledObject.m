@@ -1,0 +1,58 @@
+//
+//  NNISASwizzledObject.m
+//  Swizzlers
+//
+//  Created by Scott Perry on 02/07/13.
+//  Copyright (c) 2013 Scott Perry. All rights reserved.
+//
+
+#import "NNISASwizzledObject.h"
+
+#import <objc/runtime.h>
+
+static void *_NNSwizzleSuperclassKey = (void *)1466409828; // arc4rand(), since the address of _NNSwizzleBaseClass isn't obviously available at compile time.
+
+@implementation NNISASwizzledObject
+
++ (void)prepareObjectForSwizzling:(NSObject *)anObject;
+{
+    // Cache the original value of -class so the swizzled object can lie about itself later.
+    objc_setAssociatedObject(anObject, _NNSwizzleSuperclassKey, [anObject class], OBJC_ASSOCIATION_ASSIGN);
+}
+
+- (Class)class
+{
+    Class superclass = objc_getAssociatedObject(self, _NNSwizzleSuperclassKey);
+    
+    if (!superclass) {
+        NSLog(@"ERROR: couldn't find stashed superclass for swizzled object, falling back to parent class—if you're using KVO, this might break everything!");
+        return class_getSuperclass(object_getClass(self));
+    }
+    
+    return superclass;
+}
+
+- (Class)actualClass
+{
+    return object_getClass(self);
+}
+
+- (BOOL)conformsToProtocol:(Protocol *)aProtocol
+{
+    if ([[self actualClass] conformsToProtocol:aProtocol]) {
+        return YES;
+    }
+    
+    return [super conformsToProtocol:aProtocol];
+}
+
+- (BOOL)respondsToSelector:(SEL)aSelector
+{
+    if ([[self actualClass] instancesRespondToSelector:aSelector]) {
+        return YES;
+    }
+    
+    return [super respondsToSelector:aSelector];
+}
+
+@end

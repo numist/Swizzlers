@@ -6,8 +6,4 @@
 //  Copyright (c) 2013 Scott Perry. All rights reserved.
 //
 
-#import <Foundation/Foundation.h>
-
-@interface Swizzlers : NSObject
-
-@end
+#import <Swizzlers/nn_isaSwizzling.h>
