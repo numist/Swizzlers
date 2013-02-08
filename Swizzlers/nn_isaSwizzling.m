@@ -12,11 +12,21 @@
 //  THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 //
 
-#import "nn_isaSwizzling_Internal.h"
+#import "nn_isaSwizzling.h"
 
 #import <objc/runtime.h>
 
 #import "NNISASwizzledObject.h"
+
+
+static NSString *_prefixForSwizzlingClass(Class aClass) __attribute__((nonnull(1), pure));
+static __autoreleasing NSString * _classNameForObjectWithSwizzlingClass(id anObject, Class aClass) __attribute__((nonnull(1, 2), pure));
+static BOOL _class_addInstanceMethodsFromClass(Class target, Class source) __attribute__((nonnull(1, 2)));
+static BOOL _class_containsNonDynamicProperties(Class aClass) __attribute__((nonnull(1)));
+static BOOL _class_containsIvars(Class aClass) __attribute__((nonnull(1)));
+static Class _targetClassForObjectWithSwizzlingClass(id anObject, Class aClass) __attribute__((nonnull(1, 2)));
+static BOOL _alreadySwizzledObjectWithSwizzlingClass(id anObject, Class aClass) __attribute__((nonnull(1, 2)));
+static BOOL _object_swizzleIsa(id anObject, Class aClass) __attribute__((nonnull(1, 2)));
 
 
 static NSString *_prefixForSwizzlingClass(Class aClass)

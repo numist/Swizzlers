@@ -18,7 +18,6 @@
 		BCF8A0BA16C45D100019F58B /* nn_isaSwizzling.h in Headers */ = {isa = PBXBuildFile; fileRef = BCF8A0B516C45CB10019F58B /* nn_isaSwizzling.h */; settings = {ATTRIBUTES = (Public, ); }; };
 		BCF8A0BD16C45D400019F58B /* NNISASwizzledObject.h in Headers */ = {isa = PBXBuildFile; fileRef = BCF8A0BB16C45D400019F58B /* NNISASwizzledObject.h */; };
 		BCF8A0BE16C45D400019F58B /* NNISASwizzledObject.m in Sources */ = {isa = PBXBuildFile; fileRef = BCF8A0BC16C45D400019F58B /* NNISASwizzledObject.m */; };
-		BCF8A0C016C4639C0019F58B /* nn_isaSwizzling_Internal.h in Headers */ = {isa = PBXBuildFile; fileRef = BCF8A0BF16C4639C0019F58B /* nn_isaSwizzling_Internal.h */; };
 		BCF8A0C316C464450019F58B /* NNISASwizzlingTests.m in Sources */ = {isa = PBXBuildFile; fileRef = BCF8A0C216C464450019F58B /* NNISASwizzlingTests.m */; };
 		BCF8A0CB16C47ACF0019F58B /* debugger.c in Sources */ = {isa = PBXBuildFile; fileRef = BCF8A0C916C47ACF0019F58B /* debugger.c */; };
 		BCF8A0CC16C47ACF0019F58B /* debugger.h in Headers */ = {isa = PBXBuildFile; fileRef = BCF8A0CA16C47ACF0019F58B /* debugger.h */; };
@@ -49,7 +48,6 @@
 		BCF8A0B616C45CB10019F58B /* nn_isaSwizzling.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = nn_isaSwizzling.m; sourceTree = "<group>"; };
 		BCF8A0BB16C45D400019F58B /* NNISASwizzledObject.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = NNISASwizzledObject.h; sourceTree = "<group>"; };
 		BCF8A0BC16C45D400019F58B /* NNISASwizzledObject.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = NNISASwizzledObject.m; sourceTree = "<group>"; };
-		BCF8A0BF16C4639C0019F58B /* nn_isaSwizzling_Internal.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = nn_isaSwizzling_Internal.h; sourceTree = "<group>"; };
 		BCF8A0C116C464450019F58B /* NNISASwizzlingTests.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = NNISASwizzlingTests.h; sourceTree = "<group>"; };
 		BCF8A0C216C464450019F58B /* NNISASwizzlingTests.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = NNISASwizzlingTests.m; sourceTree = "<group>"; };
 		BCF8A0C916C47ACF0019F58B /* debugger.c */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.c; name = debugger.c; path = Frameworks/Debugger/debugger.c; sourceTree = "<group>"; };
@@ -123,7 +121,6 @@
 		BCE9CF0616BB1FED00BF4901 /* Supporting Files */ = {
 			isa = PBXGroup;
 			children = (
-				BCF8A0BF16C4639C0019F58B /* nn_isaSwizzling_Internal.h */,
 				BCF8A0BB16C45D400019F58B /* NNISASwizzledObject.h */,
 				BCF8A0BC16C45D400019F58B /* NNISASwizzledObject.m */,
 				BCE9CF0716BB1FED00BF4901 /* Swizzlers-Prefix.pch */,
@@ -169,7 +166,6 @@
 				BCF8A0B916C45D0A0019F58B /* Swizzlers.h in Headers */,
 				BCF8A0BA16C45D100019F58B /* nn_isaSwizzling.h in Headers */,
 				BCF8A0BD16C45D400019F58B /* NNISASwizzledObject.h in Headers */,
-				BCF8A0C016C4639C0019F58B /* nn_isaSwizzling_Internal.h in Headers */,
 				BCF8A0CC16C47ACF0019F58B /* debugger.h in Headers */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
