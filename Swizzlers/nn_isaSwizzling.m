@@ -43,16 +43,33 @@ static BOOL _class_addInstanceMethodsFromClass(Class target, Class source)
 {
     BOOL success = NO;
     Method *methods = class_copyMethodList(source, NULL);
+    Method method;
     
-    for (NSUInteger i = 0; methods && methods[i]; i++) {
-        Method method = methods[i];
-        
+    for (NSUInteger i = 0; methods && (method = methods[i]); i++) {
+        // targetClass is a brand new shiny class, so this should never fail because it already implements a method (even though its superclass(es) might).
         BailWithGotoUnless(class_addMethod(target, method_getName(method), method_getImplementation(method), method_getTypeEncoding(method)), finished);
     }
     
     success = YES;
 finished:
     free(methods); methods = NULL;
+    return success;
+}
+
+static BOOL _class_addProtocolsFromClass(Class targetClass, Class aClass)
+{
+    BOOL success = NO;
+    Protocol * __unsafe_unretained *protocols = class_copyProtocolList(aClass, NULL);
+    Protocol __unsafe_unretained *protocol;
+    
+    for (NSUInteger i = 0; protocols && (protocol = protocols[i]); i++) {
+        // targetClass is a brand new shiny class, so this should never fail because it already conforms to a protocol (even though its superclass(es) might).
+        BailWithGotoUnless(class_addProtocol(targetClass, protocol), finished);
+    }
+    
+    success = YES;
+finished:
+    free(protocols);
     return success;
 }
 
@@ -142,7 +159,9 @@ static Class _targetClassForObjectWithSwizzlingClass(id anObject, Class aClass)
         }
         
         // Custom class conforms to protocol
-        BailUnless(class_addProtocol(targetClass, proto), NO);
+        if (!_class_addProtocolsFromClass(targetClass, aClass)) {
+            return NO;
+        }
         
         objc_registerClassPair(targetClass);
     }
@@ -186,7 +205,6 @@ BOOL nn_object_swizzleIsa(id anObject, Class aClass) {
     @autoreleasepool {
         // Bootstrap the object with the necessary lies, like overriding -class to report the original class.
         if (!_alreadySwizzledObjectWithSwizzlingClass(anObject, [NNISASwizzledObject class])) {
-            
             [NNISASwizzledObject prepareObjectForSwizzling:anObject];
             
             success = _object_swizzleIsa(anObject, [NNISASwizzledObject class]);

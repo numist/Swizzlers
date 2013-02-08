@@ -15,6 +15,7 @@
 #import "NNISASwizzlingTests.h"
 
 #import <Swizzlers/Swizzlers.h>
+#import <Foundation/Foundation.h>
 
 // Class ISANoComply doesn't comply to its protocol and cannot be used for swizzling
 @protocol ISANoComply <NSObject> - (void)foo; @end
@@ -57,11 +58,29 @@
 @implementation ISAAddsIvars - (void)foo { NSLog(@"foooooo! "); } @end
 
 
+// Class ISAExtraProtocol adds an extra protocol that the swizzled object must conform to.
+@protocol ISAExtraProtocol <NSObject> - (void)foo; @end
+@interface ISAExtraProtocol : NSObject <ISAExtraProtocol, NSCacheDelegate> @end
+@implementation ISAExtraProtocol - (void)foo { NSLog(@"foooooo! "); } @end
+
+
 @implementation NNISASwizzlingTests
 
 - (void)testInteractionWithKVO;
 {
     STFail(@"NOT TESTED");
+}
+
+- (void)testExtraProtocol;
+{
+    NSObject *bar = [[NSObject alloc] init];
+    
+    STAssertFalse([bar conformsToProtocol:@protocol(ISAExtraProtocol)], @"Object is not virgin");
+    
+    STAssertTrue(nn_object_swizzleIsa(bar, [ISAExtraProtocol class]), @"Failed to swizzle object");
+    
+    STAssertTrue([bar conformsToProtocol:@protocol(ISAExtraProtocol)], @"Object is not swizzled correctly");
+    STAssertTrue([bar conformsToProtocol:@protocol(NSCacheDelegate)], @"Object is missing extra protocol");
 }
 
 - (void)testAddsProperties;
