@@ -22,6 +22,7 @@
 static NSString *_prefixForSwizzlingClass(Class aClass) __attribute__((nonnull(1), pure));
 static __autoreleasing NSString * _classNameForObjectWithSwizzlingClass(id anObject, Class aClass) __attribute__((nonnull(1, 2), pure));
 static BOOL _class_addInstanceMethodsFromClass(Class target, Class source) __attribute__((nonnull(1, 2)));
+static BOOL _class_addProtocolsFromClass(Class targetClass, Class aClass) __attribute__((nonnull(1,2)));
 static BOOL _class_containsNonDynamicProperties(Class aClass) __attribute__((nonnull(1)));
 static BOOL _class_containsIvars(Class aClass) __attribute__((nonnull(1)));
 static Class _targetClassForObjectWithSwizzlingClass(id anObject, Class aClass) __attribute__((nonnull(1, 2)));
