@@ -20,8 +20,9 @@
 		BCF8A0BE16C45D400019F58B /* NNISASwizzledObject.m in Sources */ = {isa = PBXBuildFile; fileRef = BCF8A0BC16C45D400019F58B /* NNISASwizzledObject.m */; };
 		BCF8A0C016C4639C0019F58B /* nn_isaSwizzling_Internal.h in Headers */ = {isa = PBXBuildFile; fileRef = BCF8A0BF16C4639C0019F58B /* nn_isaSwizzling_Internal.h */; };
 		BCF8A0C316C464450019F58B /* NNISASwizzlingTests.m in Sources */ = {isa = PBXBuildFile; fileRef = BCF8A0C216C464450019F58B /* NNISASwizzlingTests.m */; };
-		BCF8A0C616C469920019F58B /* debugger.h in Headers */ = {isa = PBXBuildFile; fileRef = BCF8A0C416C469920019F58B /* debugger.h */; };
-		BCF8A0C716C469920019F58B /* debugger.m in Sources */ = {isa = PBXBuildFile; fileRef = BCF8A0C516C469920019F58B /* debugger.m */; };
+		BCF8A0CB16C47ACF0019F58B /* debugger.c in Sources */ = {isa = PBXBuildFile; fileRef = BCF8A0C916C47ACF0019F58B /* debugger.c */; };
+		BCF8A0CC16C47ACF0019F58B /* debugger.h in Headers */ = {isa = PBXBuildFile; fileRef = BCF8A0CA16C47ACF0019F58B /* debugger.h */; };
+		BCF8A0CD16C47E200019F58B /* debugger.c in Sources */ = {isa = PBXBuildFile; fileRef = BCF8A0C916C47ACF0019F58B /* debugger.c */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXContainerItemProxy section */
@@ -51,8 +52,8 @@
 		BCF8A0BF16C4639C0019F58B /* nn_isaSwizzling_Internal.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = nn_isaSwizzling_Internal.h; sourceTree = "<group>"; };
 		BCF8A0C116C464450019F58B /* NNISASwizzlingTests.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = NNISASwizzlingTests.h; sourceTree = "<group>"; };
 		BCF8A0C216C464450019F58B /* NNISASwizzlingTests.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = NNISASwizzlingTests.m; sourceTree = "<group>"; };
-		BCF8A0C416C469920019F58B /* debugger.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = debugger.h; sourceTree = "<group>"; };
-		BCF8A0C516C469920019F58B /* debugger.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = debugger.m; sourceTree = "<group>"; };
+		BCF8A0C916C47ACF0019F58B /* debugger.c */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.c; name = debugger.c; path = Frameworks/Debugger/debugger.c; sourceTree = "<group>"; };
+		BCF8A0CA16C47ACF0019F58B /* debugger.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = debugger.h; path = Frameworks/Debugger/debugger.h; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -100,6 +101,7 @@
 		BCE9CF0216BB1FED00BF4901 /* Frameworks */ = {
 			isa = PBXGroup;
 			children = (
+				BCF8A0C816C47AAF0019F58B /* Debugger */,
 				BCE9CF0316BB1FED00BF4901 /* Foundation.framework */,
 				BCE9CF1216BB1FED00BF4901 /* SenTestingKit.framework */,
 				BCE9CF1416BB1FED00BF4901 /* UIKit.framework */,
@@ -121,8 +123,6 @@
 		BCE9CF0616BB1FED00BF4901 /* Supporting Files */ = {
 			isa = PBXGroup;
 			children = (
-				BCF8A0C416C469920019F58B /* debugger.h */,
-				BCF8A0C516C469920019F58B /* debugger.m */,
 				BCF8A0BF16C4639C0019F58B /* nn_isaSwizzling_Internal.h */,
 				BCF8A0BB16C45D400019F58B /* NNISASwizzledObject.h */,
 				BCF8A0BC16C45D400019F58B /* NNISASwizzledObject.m */,
@@ -150,6 +150,15 @@
 			name = "Supporting Files";
 			sourceTree = "<group>";
 		};
+		BCF8A0C816C47AAF0019F58B /* Debugger */ = {
+			isa = PBXGroup;
+			children = (
+				BCF8A0C916C47ACF0019F58B /* debugger.c */,
+				BCF8A0CA16C47ACF0019F58B /* debugger.h */,
+			);
+			name = Debugger;
+			sourceTree = "<group>";
+		};
 /* End PBXGroup section */
 
 /* Begin PBXHeadersBuildPhase section */
@@ -161,7 +170,7 @@
 				BCF8A0BA16C45D100019F58B /* nn_isaSwizzling.h in Headers */,
 				BCF8A0BD16C45D400019F58B /* NNISASwizzledObject.h in Headers */,
 				BCF8A0C016C4639C0019F58B /* nn_isaSwizzling_Internal.h in Headers */,
-				BCF8A0C616C469920019F58B /* debugger.h in Headers */,
+				BCF8A0CC16C47ACF0019F58B /* debugger.h in Headers */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -265,7 +274,7 @@
 			files = (
 				BCF8A0B716C45CB10019F58B /* nn_isaSwizzling.m in Sources */,
 				BCF8A0BE16C45D400019F58B /* NNISASwizzledObject.m in Sources */,
-				BCF8A0C716C469920019F58B /* debugger.m in Sources */,
+				BCF8A0CB16C47ACF0019F58B /* debugger.c in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -274,6 +283,7 @@
 			buildActionMask = 2147483647;
 			files = (
 				BCF8A0C316C464450019F58B /* NNISASwizzlingTests.m in Sources */,
+				BCF8A0CD16C47E200019F58B /* debugger.c in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -328,7 +338,7 @@
 				);
 				GCC_SYMBOLS_PRIVATE_EXTERN = NO;
 				GCC_TREAT_IMPLICIT_FUNCTION_DECLARATIONS_AS_ERRORS = YES;
-				GCC_TREAT_WARNINGS_AS_ERRORS = YES;
+				GCC_TREAT_WARNINGS_AS_ERRORS = NO;
 				GCC_WARN_64_TO_32_BIT_CONVERSION = YES;
 				GCC_WARN_ABOUT_DEPRECATED_FUNCTIONS = YES;
 				GCC_WARN_ABOUT_MISSING_FIELD_INITIALIZERS = YES;
@@ -342,7 +352,6 @@
 				GCC_WARN_INITIALIZER_NOT_FULLY_BRACKETED = YES;
 				GCC_WARN_MISSING_PARENTHESES = YES;
 				GCC_WARN_MULTIPLE_DEFINITION_TYPES_FOR_SELECTOR = YES;
-				GCC_WARN_PEDANTIC = YES;
 				GCC_WARN_SHADOW = YES;
 				GCC_WARN_SIGN_COMPARE = YES;
 				GCC_WARN_TYPECHECK_CALLS_TO_PRINTF = YES;
@@ -353,9 +362,16 @@
 				GCC_WARN_UNUSED_PARAMETER = YES;
 				GCC_WARN_UNUSED_VALUE = YES;
 				GCC_WARN_UNUSED_VARIABLE = YES;
+				HEADER_SEARCH_PATHS = (
+					"$(PROJECT_DIR)/Frameworks",
+					$inherited,
+				);
 				IPHONEOS_DEPLOYMENT_TARGET = 6.1;
 				ONLY_ACTIVE_ARCH = YES;
+				PRIVATE_HEADERS_FOLDER_PATH = "$(PROJECT_NAME)/Private/";
+				PUBLIC_HEADERS_FOLDER_PATH = "$(PROJECT_NAME)/";
 				SDKROOT = iphoneos;
+				WARNING_CFLAGS = "-Wall";
 			};
 			name = Debug;
 		};
@@ -381,7 +397,7 @@
 				COPY_PHASE_STRIP = YES;
 				GCC_C_LANGUAGE_STANDARD = gnu99;
 				GCC_TREAT_IMPLICIT_FUNCTION_DECLARATIONS_AS_ERRORS = YES;
-				GCC_TREAT_WARNINGS_AS_ERRORS = YES;
+				GCC_TREAT_WARNINGS_AS_ERRORS = NO;
 				GCC_WARN_64_TO_32_BIT_CONVERSION = YES;
 				GCC_WARN_ABOUT_DEPRECATED_FUNCTIONS = YES;
 				GCC_WARN_ABOUT_MISSING_FIELD_INITIALIZERS = YES;
@@ -395,7 +411,6 @@
 				GCC_WARN_INITIALIZER_NOT_FULLY_BRACKETED = YES;
 				GCC_WARN_MISSING_PARENTHESES = YES;
 				GCC_WARN_MULTIPLE_DEFINITION_TYPES_FOR_SELECTOR = YES;
-				GCC_WARN_PEDANTIC = YES;
 				GCC_WARN_SHADOW = YES;
 				GCC_WARN_SIGN_COMPARE = YES;
 				GCC_WARN_TYPECHECK_CALLS_TO_PRINTF = YES;
@@ -406,9 +421,16 @@
 				GCC_WARN_UNUSED_PARAMETER = YES;
 				GCC_WARN_UNUSED_VALUE = YES;
 				GCC_WARN_UNUSED_VARIABLE = YES;
+				HEADER_SEARCH_PATHS = (
+					"$(PROJECT_DIR)/Frameworks",
+					$inherited,
+				);
 				IPHONEOS_DEPLOYMENT_TARGET = 6.1;
+				PRIVATE_HEADERS_FOLDER_PATH = "$(PROJECT_NAME)/Private/";
+				PUBLIC_HEADERS_FOLDER_PATH = "$(PROJECT_NAME)/";
 				SDKROOT = iphoneos;
 				VALIDATE_PRODUCT = YES;
+				WARNING_CFLAGS = "-Wall";
 			};
 			name = Release;
 		};
@@ -419,9 +441,7 @@
 				GCC_PRECOMPILE_PREFIX_HEADER = YES;
 				GCC_PREFIX_HEADER = "Swizzlers/Swizzlers-Prefix.pch";
 				OTHER_LDFLAGS = "-ObjC";
-				PRIVATE_HEADERS_FOLDER_PATH = "$(PROJECT_NAME)/Private/";
 				PRODUCT_NAME = "$(TARGET_NAME)";
-				PUBLIC_HEADERS_FOLDER_PATH = "$(PROJECT_NAME)/";
 				SKIP_INSTALL = YES;
 			};
 			name = Debug;
@@ -433,9 +453,7 @@
 				GCC_PRECOMPILE_PREFIX_HEADER = YES;
 				GCC_PREFIX_HEADER = "Swizzlers/Swizzlers-Prefix.pch";
 				OTHER_LDFLAGS = "-ObjC";
-				PRIVATE_HEADERS_FOLDER_PATH = "$(PROJECT_NAME)/Private/";
 				PRODUCT_NAME = "$(TARGET_NAME)";
-				PUBLIC_HEADERS_FOLDER_PATH = "$(PROJECT_NAME)/";
 				SKIP_INSTALL = YES;
 			};
 			name = Release;
