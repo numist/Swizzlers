@@ -81,9 +81,10 @@ static BOOL _class_containsNonDynamicProperties(Class aClass)
     for (unsigned i = 0; properties && properties[i]; i++) {
         char *attributes = strdup(property_getAttributes(properties[i]));
         char *token;
+        char *next = attributes;
         
         // For more information about the property type string, see the Declared Properties section of the Objective-C Runtime Programming Guide
-        while ((token = strsep(&attributes, ",")) != NULL) {
+        while ((token = strsep(&next, ",")) != NULL) {
             if (strlen(token) > 1) continue;
             
             NSLog(@"%s", token);
