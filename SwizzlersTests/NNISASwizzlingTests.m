@@ -17,15 +17,9 @@
 #import <Swizzlers/Swizzlers.h>
 #import <Foundation/Foundation.h>
 
-// Class ISANoComply doesn't comply to its protocol and cannot be used for swizzling
-@protocol ISANoComply <NSObject> - (void)foo; @end
-@interface ISANoComply : NSObject @end
-@implementation ISANoComply - (void)foo { NSLog(@"foooooo! "); } @end
-
-
 // Class ISAGood can be used for swizzling any NSObject
 @protocol ISAGood <NSObject> - (void)foo; @end
-@interface ISAGood : NSObject <ISAGood, ISANoComply> @end // Complies to ISANoComply to prevent the protocol from being culled by the compiler as a dead symbol
+@interface ISAGood : NSObject <ISAGood> @end
 @implementation ISAGood - (void)foo { NSLog(@"foooooo! "); } - (void)doesNotRecognizeSelector:(__attribute__((unused)) SEL)aSelector { NSLog(@"FAUX NOES!"); } @end
 
 
@@ -136,18 +130,11 @@
     STAssertTrue(nn_object_swizzleIsa(arr, [ISANoSharedAncestor class]), @"Failed to swizzle object");
 }
 
-- (void)testNoComply;
-{
-    NSObject *bar = [[NSObject alloc] init];
-    
-    STAssertFalse(nn_object_swizzleIsa(bar, [ISANoComply class]), @"Failed to fail to swizzle object");
-}
-
 - (void)testNoProto;
 {
     NSObject *bar = [[NSObject alloc] init];
 
-    STAssertFalse(nn_object_swizzleIsa(bar, [ISANoProtocol class]), @"Failed to fail to swizzle object");
+    STAssertTrue(nn_object_swizzleIsa(bar, [ISANoProtocol class]), @"Failed to swizzle object");
 }
 
 - (void)testImplementationDetails;
@@ -176,6 +163,7 @@
     STAssertTrue(nn_object_swizzleIsa(bar, [ISAGood class]), @"Failed to swizzle object");
     
     STAssertTrue([bar conformsToProtocol:@protocol(ISAGood)], @"Object is not swizzled correctly");
+    STAssertTrue([bar isKindOfClass:[ISAGood class]], @"Object is not swizzled correctly");
     
     STAssertTrue([bar respondsToSelector:@selector(foo)], @"Object is not swizzled correctly");
     

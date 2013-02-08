@@ -12,7 +12,7 @@
 //  THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 //
 
-#import "nn_isaSwizzling.h"
+#import "nn_isaSwizzling_Private.h"
 
 #import <objc/runtime.h>
 
@@ -26,7 +26,6 @@ static BOOL _class_addProtocolsFromClass(Class targetClass, Class aClass) __attr
 static BOOL _class_containsNonDynamicProperties(Class aClass) __attribute__((nonnull(1)));
 static BOOL _class_containsIvars(Class aClass) __attribute__((nonnull(1)));
 static Class _targetClassForObjectWithSwizzlingClass(id anObject, Class aClass) __attribute__((nonnull(1, 2)));
-static BOOL _alreadySwizzledObjectWithSwizzlingClass(id anObject, Class aClass) __attribute__((nonnull(1, 2)));
 static BOOL _object_swizzleIsa(id anObject, Class aClass) __attribute__((nonnull(1, 2)));
 
 
@@ -119,19 +118,6 @@ static Class _targetClassForObjectWithSwizzlingClass(id anObject, Class aClass)
     Class targetClass = objc_getClass(_classNameForObjectWithSwizzlingClass(anObject, aClass).UTF8String);
     
     if (!targetClass) {
-        // protocol corresponding to target class must exist
-        Protocol *proto = objc_getProtocol(class_getName(aClass));
-        if(!proto) {
-            NSLog(@"Protocol %s must be defined to swizzle objects using class %@", class_getName(aClass), aClass);
-            return NO;
-        }
-        
-        // Source class must conform to the corresponding protocol
-        if (!class_conformsToProtocol(aClass, proto)) {
-            NSLog(@"Swizzling class %s does not conform to protocol %s", class_getName(aClass), protocol_getName(proto));
-            return NO;
-        }
-        
         // obj must be subclass of class' superclass to guarantee that certain properties are available to the methods being added.
         Class sharedAncestor = class_getSuperclass(aClass);
         if (![anObject isKindOfClass:sharedAncestor]) {
@@ -170,22 +156,9 @@ static Class _targetClassForObjectWithSwizzlingClass(id anObject, Class aClass)
     return targetClass;
 }
 
-static BOOL _alreadySwizzledObjectWithSwizzlingClass(id anObject, Class aClass)
-{
-    NSString *classPrefix = _prefixForSwizzlingClass(aClass);
-    
-    for(Class candidate = object_getClass(anObject); candidate != nil; candidate = class_getSuperclass(candidate)) {
-        if ([[NSString stringWithUTF8String:class_getName(candidate)] hasPrefix:classPrefix]) {
-            return YES;
-        }
-    }
-    
-    return NO;
-}
-
 static BOOL _object_swizzleIsa(id anObject, Class aClass)
 {
-    if (_alreadySwizzledObjectWithSwizzlingClass(anObject, aClass)) {
+    if (nn_alreadySwizzledObjectWithSwizzlingClass(anObject, aClass)) {
         return YES;
     }
     
@@ -200,12 +173,29 @@ static BOOL _object_swizzleIsa(id anObject, Class aClass)
     return YES;
 }
 
+#pragma mark Privately-exported functions
+
+BOOL nn_alreadySwizzledObjectWithSwizzlingClass(id anObject, Class aClass)
+{
+    NSString *classPrefix = _prefixForSwizzlingClass(aClass);
+    
+    for(Class candidate = object_getClass(anObject); candidate != nil; candidate = class_getSuperclass(candidate)) {
+        if ([[NSString stringWithUTF8String:class_getName(candidate)] hasPrefix:classPrefix]) {
+            return YES;
+        }
+    }
+    
+    return NO;
+}
+
+#pragma mark Publicly-exported funtions
+
 BOOL nn_object_swizzleIsa(id anObject, Class aClass) {
     BOOL success = YES;
     
     @autoreleasepool {
         // Bootstrap the object with the necessary lies, like overriding -class to report the original class.
-        if (!_alreadySwizzledObjectWithSwizzlingClass(anObject, [NNISASwizzledObject class])) {
+        if (!nn_alreadySwizzledObjectWithSwizzlingClass(anObject, [NNISASwizzledObject class])) {
             [NNISASwizzledObject prepareObjectForSwizzling:anObject];
             
             success = _object_swizzleIsa(anObject, [NNISASwizzledObject class]);

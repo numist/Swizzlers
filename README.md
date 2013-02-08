@@ -17,11 +17,48 @@ Modules
 
 Robust isa swizzling is provided using the `nn_object_swizzleIsa` function. The following conditions must be met:
 
-* A protocol with the same name as the swizzling class exists and is implemented by the swizzling class.
 * The object is an instance of the swizzling class's superclass, or a subclass of the swizzling class's superclass.
 * The swizzling class does not add any ivars or non-dynamic properties.
 
-An object has been swizzled by a class if it conforms to that class's complementing protocol, allowing you to cast the object (after checking!) to a type that explicitly implements the protocol.
+An object has been swizzled by a class if it responds YES to `isKindOfClass:` with the swizzling class as an argument. All the same, it's best to indicate added functionality using protocols on the swizzling class (which can be queried with `conformsToProtocol:`, as usual).
+
+#### Usage ####
+
+First, you'll need to define your swizzling class and any of the associated protocols you want to use. For example:
+
+    @protocol MYProtocol <NSObject>
+    - (void)dog;
+    @end
+    
+    @interface MYClass : NSObject <MYProtocol>
+    @property (nonatomic, readonly) NSUInteger random;
+    - (void)duck;
+    @end
+    
+    @implementation MYClass
+    - (NSUInteger)random { return 7; }
+    - (void)duck { NSLog(@"quack!"); }
+    - (void)dog { NSLog(@"woof!"); }
+    @end
+
+To swizzle your object and use its newfound functionality, just call `nn_object_swizzleIsa`:
+
+    #import <Swizzlers/Swizzlers.h>
+        
+    @implementation MYCode
+    - (void)main {
+        NSObject *bar = [[NSObject alloc] init];
+        nn_object_swizzleIsa(bar, [MYClass class]);
+        if ([bar isKindOfClass:[MYClass class]]) {
+            [(MYClass *)bar duck];
+        }
+        if ([bar conformsToProtocol:@protocol(MYProtocol)]) {
+            [(id<MYProtocol>)bar dog];
+        }
+    }
+    @end
+
+See the [tests](https://github.com/numist/Swizzlers/blob/master/SwizzlersTests/NNISASwizzlingTests.m) for more explicit examples of what is supposed to work and what is supposed to be an error.
 
 License/Credits
 ===============

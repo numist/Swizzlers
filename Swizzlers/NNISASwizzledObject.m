@@ -16,15 +16,21 @@
 
 #import <objc/runtime.h>
 
+#import "nn_isaSwizzling_Private.h"
+
 static void *_NNSwizzleSuperclassKey = (void *)1466409828; // arc4rand(), since the address of _NNSwizzleBaseClass isn't obviously available at compile time.
 
 @implementation NNISASwizzledObject
+
+#pragma mark Swizzler runtime support.
 
 + (void)prepareObjectForSwizzling:(NSObject *)anObject;
 {
     // Cache the original value of -class so the swizzled object can lie about itself later.
     objc_setAssociatedObject(anObject, _NNSwizzleSuperclassKey, [anObject class], OBJC_ASSOCIATION_ASSIGN);
 }
+
+#pragma mark Swizzled object overrides.
 
 - (Class)class
 {
@@ -59,6 +65,15 @@ static void *_NNSwizzleSuperclassKey = (void *)1466409828; // arc4rand(), since 
     }
     
     return [super respondsToSelector:aSelector];
+}
+
+- (BOOL)isKindOfClass:(Class)aClass;
+{
+    if (nn_alreadySwizzledObjectWithSwizzlingClass(self, aClass)) {
+        return YES;
+    }
+    
+    return [super isKindOfClass:aClass];
 }
 
 @end

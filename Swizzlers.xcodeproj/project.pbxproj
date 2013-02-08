@@ -7,6 +7,7 @@
 	objects = {
 
 /* Begin PBXBuildFile section */
+		BC65B06A16C5AB5300734FDA /* nn_isaSwizzling_Private.h in Headers */ = {isa = PBXBuildFile; fileRef = BC65B06916C5AB5300734FDA /* nn_isaSwizzling_Private.h */; settings = {ATTRIBUTES = (Private, ); }; };
 		BCE9CF0416BB1FED00BF4901 /* Foundation.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = BCE9CF0316BB1FED00BF4901 /* Foundation.framework */; };
 		BCE9CF1316BB1FED00BF4901 /* SenTestingKit.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = BCE9CF1216BB1FED00BF4901 /* SenTestingKit.framework */; };
 		BCE9CF1516BB1FED00BF4901 /* UIKit.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = BCE9CF1416BB1FED00BF4901 /* UIKit.framework */; };
@@ -35,6 +36,7 @@
 /* End PBXContainerItemProxy section */
 
 /* Begin PBXFileReference section */
+		BC65B06916C5AB5300734FDA /* nn_isaSwizzling_Private.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = nn_isaSwizzling_Private.h; sourceTree = "<group>"; };
 		BCE9CF0016BB1FED00BF4901 /* libSwizzlers.a */ = {isa = PBXFileReference; explicitFileType = archive.ar; includeInIndex = 0; path = libSwizzlers.a; sourceTree = BUILT_PRODUCTS_DIR; };
 		BCE9CF0316BB1FED00BF4901 /* Foundation.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = Foundation.framework; path = System/Library/Frameworks/Foundation.framework; sourceTree = SDKROOT; };
 		BCE9CF0716BB1FED00BF4901 /* Swizzlers-Prefix.pch */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = "Swizzlers-Prefix.pch"; sourceTree = "<group>"; };
@@ -113,6 +115,7 @@
 				BCE9CF0816BB1FED00BF4901 /* Swizzlers.h */,
 				BCF8A0B516C45CB10019F58B /* nn_isaSwizzling.h */,
 				BCF8A0B616C45CB10019F58B /* nn_isaSwizzling.m */,
+				BC65B06916C5AB5300734FDA /* nn_isaSwizzling_Private.h */,
 				BCE9CF0616BB1FED00BF4901 /* Supporting Files */,
 			);
 			path = Swizzlers;
@@ -167,6 +170,7 @@
 				BCF8A0BA16C45D100019F58B /* nn_isaSwizzling.h in Headers */,
 				BCF8A0BD16C45D400019F58B /* NNISASwizzledObject.h in Headers */,
 				BCF8A0CC16C47ACF0019F58B /* debugger.h in Headers */,
+				BC65B06A16C5AB5300734FDA /* nn_isaSwizzling_Private.h in Headers */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
