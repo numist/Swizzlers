@@ -33,11 +33,50 @@
 @implementation ISANoProtocol - (void)foo { NSLog(@"foooooo! "); } @end
 
 
+// Class ISAAddsProperties adds properties to its superclass and thus cannot be used for swizzling
+@protocol ISAAddsProperties <NSObject> - (void)foo; @end
+@interface ISAAddsProperties : NSObject <ISAAddsProperties> @property (nonatomic, assign) NSUInteger bar; @end
+@implementation ISAAddsProperties - (void)foo { NSLog(@"foooooo! "); } @end
+
+
+// Class ISAAddsProperties adds properties to its superclass and thus cannot be used for swizzling
+@protocol ISAAddsLegalProperties <NSObject> - (void)foo; @end
+@interface ISAAddsLegalProperties : NSObject <ISAAddsLegalProperties> @property (nonatomic, assign) NSUInteger bar; @end
+@implementation ISAAddsLegalProperties @dynamic bar; - (void)foo { NSLog(@"foooooo! "); } @end
+
+
+// Class ISAAddsIvars adds ivars to its superclass and thus cannot be used for swizzling
+@protocol ISAAddsIvars <NSObject> - (void)foo; @end
+@interface ISAAddsIvars : NSObject <ISAAddsIvars> { NSUInteger bar; } @end
+@implementation ISAAddsIvars - (void)foo { NSLog(@"foooooo! "); } @end
+
+
 @implementation NNISASwizzlingTests
 
 - (void)testInteractionWithKVO;
 {
     STFail(@"NOT TESTED");
+}
+
+- (void)testAddsProperties;
+{
+    NSObject *bar = [[NSObject alloc] init];
+    
+    STAssertFalse(nn_object_swizzleIsa(bar, [ISAAddsProperties class]), @"Failed to fail to swizzle object");
+}
+
+- (void)testAddsLegalProperties;
+{
+    NSObject *bar = [[NSObject alloc] init];
+    
+    STAssertTrue(nn_object_swizzleIsa(bar, [ISAAddsLegalProperties class]), @"Failed to swizzle object");
+}
+
+- (void)testAddsIvars;
+{
+    NSObject *bar = [[NSObject alloc] init];
+    
+    STAssertFalse(nn_object_swizzleIsa(bar, [ISAAddsIvars class]), @"Failed to fail to swizzle object");
 }
 
 - (void)testDoubleSwizzle;

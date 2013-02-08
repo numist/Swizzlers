@@ -40,6 +40,46 @@ finished:
     return success;
 }
 
+static BOOL _class_containsNonDynamicProperties(Class aClass)
+{
+    objc_property_t *properties = class_copyPropertyList(aClass, NULL);
+    BOOL propertyIsDynamic = NO;
+    
+    for (unsigned i = 0; properties && properties[i]; i++) {
+        char *attributes = strdup(property_getAttributes(properties[i]));
+        char *token;
+        
+        // For more information about the property type string, see the Declared Properties section of the Objective-C Runtime Programming Guide
+        while ((token = strsep(&attributes, ",")) != NULL) {
+            if (strlen(token) > 1) continue;
+            
+            NSLog(@"%s", token);
+            if (!strcmp(token, "D")) { // The property is dynamic (@dynamic).
+                propertyIsDynamic = YES;
+                break;
+            }
+        }
+        
+        free(attributes); attributes = NULL;
+        
+        if (!propertyIsDynamic) {
+            NSLog(@"Swizzling class %s cannot contain non-dynamic properties", class_getName(aClass));
+            free(properties);
+            return YES;
+        }
+    }
+    
+    free(properties); properties = NULL;
+    return NO;
+}
+
+static BOOL _class_containsIvars(Class aClass)
+{
+    unsigned ivars;
+    free(class_copyIvarList(aClass, &ivars));
+    return ivars != 0;
+}
+
 static Class _targetClassForObjectWithSwizzlingClass(id anObject, Class aClass)
 {
     Class targetClass = objc_getClass(_classNameForObjectWithSwizzlingClass(anObject, aClass).UTF8String);
@@ -62,6 +102,18 @@ static Class _targetClassForObjectWithSwizzlingClass(id anObject, Class aClass)
         Class sharedAncestor = class_getSuperclass(aClass);
         if (![anObject isKindOfClass:sharedAncestor]) {
             NSLog(@"Target object %@ must be a subclass of %@.", anObject, sharedAncestor);
+            return NO;
+        }
+        
+        // Swizzling class must not contain any uninherited properties
+        if (_class_containsNonDynamicProperties(aClass)) {
+            NSLog(@"Swizzling class %s cannot contain non-dynamic properties", class_getName(aClass));
+            return NO;
+        }
+        
+        // Swizzling class must not contain any uninherited ivars
+        if (_class_containsIvars(aClass)) {
+            NSLog(@"Swizzling class %s cannot contain ivars not inherited from its superclass", class_getName(aClass));
             return NO;
         }
         
