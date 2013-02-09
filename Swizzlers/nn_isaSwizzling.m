@@ -74,6 +74,29 @@ finished:
     return success;
 }
 
+static BOOL _class_addPropertiesFromClass(Class targetClass, Class aClass)
+{
+    BOOL success = NO;
+    objc_property_t *properties = class_copyPropertyList(aClass, NULL);
+    objc_property_t property;
+    
+    for (NSUInteger i = 0; properties && (property = properties[i]); i++) {
+        unsigned attributeCount;
+        objc_property_attribute_t *attributes = _nn_property_copyAttributeList(property, &attributeCount);
+
+        // targetClass is a brand new shiny class, so this should never fail because it already has certain properties (even though its superclass(es) might).
+        if(!class_addProperty(targetClass, property_getName(property), attributes, attributeCount)) {
+            free(attributes);
+            goto finished;
+        }
+    }
+    
+    success = YES;
+finished:
+    free(properties);
+    return success;
+}
+
 static objc_property_attribute_t *_nn_property_copyAttributeList(objc_property_t property, unsigned int *outCount)
 {
     void *(^failure)(void) = ^{
@@ -231,6 +254,11 @@ static Class _targetClassForObjectWithSwizzlingClass(id anObject, Class aClass)
         
         // Add protocols from source class
         if (!_class_addProtocolsFromClass(targetClass, aClass)) {
+            return NO;
+        }
+        
+        // Add properties from source class
+        if (!_class_addPropertiesFromClass(targetClass, aClass)) {
             return NO;
         }
         

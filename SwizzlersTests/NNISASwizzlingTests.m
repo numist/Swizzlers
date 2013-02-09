@@ -41,9 +41,9 @@
 
 
 // Class ISAAddsProperties adds properties to its superclass and thus cannot be used for swizzling
-@protocol ISAAddsLegalProperties <NSObject> - (void)foo; @end
+@protocol ISAAddsLegalProperties <NSObject> @end
 @interface ISAAddsLegalProperties : NSObject <ISAAddsLegalProperties> @property (nonatomic, assign) NSUInteger bar; @end
-@implementation ISAAddsLegalProperties @dynamic bar; - (void)foo { NSLog(@"foooooo! "); } @end
+@implementation ISAAddsLegalProperties @dynamic bar; - (NSUInteger)bar { NSLog(@"foooooo! "); return 7; } @end
 
 
 // Class ISAAddsIvars adds ivars to its superclass and thus cannot be used for swizzling
@@ -89,6 +89,7 @@
     NSObject *bar = [[NSObject alloc] init];
     
     STAssertTrue(nn_object_swizzleIsa(bar, [ISAAddsLegalProperties class]), @"Failed to swizzle object");
+    STAssertEquals(((ISAAddsLegalProperties *)bar).bar, (NSUInteger)7, @"Oops properties");
 }
 
 - (void)testAddsIvars;
