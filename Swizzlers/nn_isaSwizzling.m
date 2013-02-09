@@ -23,6 +23,7 @@ static NSString *_prefixForSwizzlingClass(Class aClass) __attribute__((nonnull(1
 static __autoreleasing NSString * _classNameForObjectWithSwizzlingClass(id anObject, Class aClass) __attribute__((nonnull(1, 2), pure));
 static BOOL _class_addInstanceMethodsFromClass(Class target, Class source) __attribute__((nonnull(1, 2)));
 static BOOL _class_addProtocolsFromClass(Class targetClass, Class aClass) __attribute__((nonnull(1,2)));
+static objc_property_attribute_t *_nn_property_copyAttributeList(objc_property_t property, unsigned int *outCount) __attribute__((nonnull(1)));
 static BOOL _class_containsNonDynamicProperties(Class aClass) __attribute__((nonnull(1)));
 static BOOL _class_containsIvars(Class aClass) __attribute__((nonnull(1)));
 static Class _targetClassForObjectWithSwizzlingClass(id anObject, Class aClass) __attribute__((nonnull(1, 2)));
@@ -73,22 +74,104 @@ finished:
     return success;
 }
 
+static objc_property_attribute_t *_nn_property_copyAttributeList(objc_property_t property, unsigned int *outCount)
+{
+    void *(^failure)(void) = ^{
+        if (outCount) {
+            *outCount = 0;
+        }
+        return NULL;
+    };
+
+    // For more information about the property type string, see the Declared Properties section of the Objective-C Runtime Programming Guide
+    const char *constAttributes = property_getAttributes(property);
+    BailWithBlockUnless(constAttributes, failure);
+    
+    /**
+     *  ┏━━━━━━━━━━━━━━━━┓
+     *  ┃nameptr         ┃
+     *  ┃valueptr        ┃
+     *  ┠────────────────┨
+     *  ┃nameptr         ┃
+     *  ┃valueptr        ┃
+     *  ┠────────────────┨
+     *  ┃nameptr         ┃
+     *  ┃valueptr        ┃
+     *  ┠────────────────┨
+     *  ┃...             ┃
+     *  ┠────────────────┨
+     *  ┃NULL            ┃
+     *  ┃NULL            ┃
+     *  ┠────────────────┨
+     *  ┃N0Valueue0N0Valu┃
+     *  ┃e0N0Valueueueue0┃
+     *  ┃...             ┃
+     *  ┗━━━━━━━━━━━━━━━━┛
+     */
+
+    // Get the number of attributes
+    size_t attributeCount = strlen(constAttributes) ? 1 : 0;
+    for (unsigned i = 0; constAttributes[i] != '\0'; i++) {
+        if (constAttributes[i] == ',') {
+            attributeCount++;
+        }
+    }
+
+    // Calculate and allocate the attribute list to be returned to the caller
+    size_t attributeListSize = (attributeCount + 1) * sizeof(objc_property_attribute_t); // The list of attributes, plus an extra attribute containing NULL for its name and value.
+    size_t attributeStringsSize = (strlen(constAttributes) + attributeCount + 1) * sizeof(char); // The attribute names and values, plus the extra necessary NUL terminators.
+    objc_property_attribute_t *attributeList = calloc(attributeListSize + attributeStringsSize, 1);
+    BailWithBlockUnless(attributeList, failure);
+
+    // Initialize the attribute string area.
+    char *attributeStrings = (char *)attributeList + attributeListSize;
+    strcpy(attributeStrings, constAttributes);
+
+    char *name;
+    char *next = attributeStrings;
+    unsigned attributeIndex = 0;
+    while ((name = strsep(&next, ",")) != NULL) {
+        // Attribute pairs must contain a name!
+        if (*name == '\0') {
+            free(attributeList);
+            return failure();
+        }
+        
+        // NUL-terminating the name requires first moving the rest of the string which requires some extra housekeeping because of strsep.
+        char *value = name + 1;
+        int remainingBufferLength = (int)attributeStringsSize - (int)(value - attributeStrings);
+        if (remainingBufferLength > 1) {
+            memmove(value + 1, value, remainingBufferLength - 1);
+            // Update next pointer for strsep
+            if (next) next++;
+        }
+        
+        // Add NUL termination to name and update value pointer.
+        *(name + 1) = '\0';
+        value++;
+        
+        attributeList[attributeIndex].name = name;
+        attributeList[attributeIndex].value = value;
+        attributeIndex++;
+    }
+
+    if (outCount) {
+        *outCount = attributeCount;
+    }
+    
+    return attributeList;
+}
+
 static BOOL _class_containsNonDynamicProperties(Class aClass)
 {
     objc_property_t *properties = class_copyPropertyList(aClass, NULL);
     BOOL propertyIsDynamic = NO;
     
     for (unsigned i = 0; properties && properties[i]; i++) {
-        char *attributes = strdup(property_getAttributes(properties[i]));
-        char *token;
-        char *next = attributes;
+        objc_property_attribute_t *attributes = _nn_property_copyAttributeList(properties[i], NULL);
         
-        // For more information about the property type string, see the Declared Properties section of the Objective-C Runtime Programming Guide
-        while ((token = strsep(&next, ",")) != NULL) {
-            if (strlen(token) > 1) continue;
-            
-            NSLog(@"%s", token);
-            if (!strcmp(token, "D")) { // The property is dynamic (@dynamic).
+        for (unsigned j = 0; attributes && attributes[j].name; j++) {
+            if (!strcmp(attributes[j].name, "D")) { // The property is dynamic (@dynamic).
                 propertyIsDynamic = YES;
                 break;
             }
