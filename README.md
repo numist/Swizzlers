@@ -22,6 +22,8 @@ Robust isa swizzling is provided using the `nn_object_swizzleIsa` function. The 
 
 An object has been swizzled by a class if it responds YES to `isKindOfClass:` with the swizzling class as an argument. All the same, it's best to indicate added functionality using protocols on the swizzling class (which can be queried with `conformsToProtocol:`, as usual).
 
+To avoid any confusion, your swizzling class should not implement an allocator or initializer. They will never be called for swizzled objects.
+
 #### Usage ####
 
 First, you'll need to define your swizzling class and any of the associated protocols you want to use. For example:
