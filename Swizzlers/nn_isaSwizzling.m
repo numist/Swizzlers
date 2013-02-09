@@ -229,7 +229,7 @@ static Class _targetClassForObjectWithSwizzlingClass(id anObject, Class aClass)
             return NO;
         }
         
-        // Custom class conforms to protocol
+        // Add protocols from source class
         if (!_class_addProtocolsFromClass(targetClass, aClass)) {
             return NO;
         }
