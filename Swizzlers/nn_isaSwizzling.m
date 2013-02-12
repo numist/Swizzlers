@@ -238,31 +238,31 @@ static Class _targetClassForObjectWithSwizzlingClass(id anObject, Class aClass)
         Class sharedAncestor = class_getSuperclass(aClass);
         if (![anObject isKindOfClass:sharedAncestor]) {
             NSLog(@"Target object %@ must be a subclass of %@ to be swizzled with class %s.", anObject, sharedAncestor, swizzlingClassName);
-            return NO;
+            return Nil;
         }
         
         if (_class_containsNonDynamicProperties(aClass)) {
             NSLog(@"Swizzling class %s cannot contain non-dynamic properties not inherited from its superclass", swizzlingClassName);
-            return NO;
+            return Nil;
         }
         
         if (_class_containsIvars(aClass)) {
             NSLog(@"Swizzling class %s cannot contain ivars not inherited from its superclass", swizzlingClassName);
-            return NO;
+            return Nil;
         }
         
         targetClass = objc_allocateClassPair(object_getClass(anObject), _classNameForObjectWithSwizzlingClass(anObject, aClass).UTF8String, 0);
         
         if (!_class_addInstanceMethodsFromClass(targetClass, aClass)) {
-            return NO;
+            return Nil;
         }
         
         if (!_class_addProtocolsFromClass(targetClass, aClass)) {
-            return NO;
+            return Nil;
         }
         
         if (!_class_addPropertiesFromClass(targetClass, aClass)) {
-            return NO;
+            return Nil;
         }
         
         objc_registerClassPair(targetClass);
