@@ -20,10 +20,10 @@
 
 
 static NSString *_prefixForSwizzlingClass(Class aClass) __attribute__((nonnull(1), pure));
-static __autoreleasing NSString * _classNameForObjectWithSwizzlingClass(id anObject, Class aClass) __attribute__((nonnull(1, 2), pure));
+static NSString * _classNameForObjectWithSwizzlingClass(id anObject, Class aClass) __attribute__((nonnull(1, 2), pure));
 static BOOL _class_addInstanceMethodsFromClass(Class target, Class source) __attribute__((nonnull(1, 2)));
 static BOOL _class_addProtocolsFromClass(Class targetClass, Class aClass) __attribute__((nonnull(1,2)));
-static objc_property_attribute_t *_nn_property_copyAttributeList(objc_property_t property, unsigned int *outCount) __attribute__((nonnull(1)));
+static objc_property_attribute_t *_property_copyAttributeList(objc_property_t property, unsigned int *outCount) __attribute__((nonnull(1)));
 static BOOL _class_containsNonDynamicProperties(Class aClass) __attribute__((nonnull(1)));
 static BOOL _class_containsIvars(Class aClass) __attribute__((nonnull(1)));
 static Class _targetClassForObjectWithSwizzlingClass(id anObject, Class aClass) __attribute__((nonnull(1, 2)));
@@ -35,10 +35,12 @@ static NSString *_prefixForSwizzlingClass(Class aClass)
     return [NSString stringWithFormat:@"%s_", class_getName(aClass)];
 }
 
-static __autoreleasing NSString * _classNameForObjectWithSwizzlingClass(id anObject, Class aClass)
+static NSString * _classNameForObjectWithSwizzlingClass(id anObject, Class aClass)
 {
     return [NSString stringWithFormat:@"%@%s", _prefixForSwizzlingClass(aClass), object_getClassName(anObject)];
 }
+
+#pragma mark Class copying functions
 
 static BOOL _class_addInstanceMethodsFromClass(Class target, Class source)
 {
@@ -70,7 +72,7 @@ static BOOL _class_addProtocolsFromClass(Class targetClass, Class aClass)
     
     success = YES;
 finished:
-    free(protocols);
+    free(protocols); protocols = NULL;
     return success;
 }
 
@@ -82,7 +84,7 @@ static BOOL _class_addPropertiesFromClass(Class targetClass, Class aClass)
     
     for (NSUInteger i = 0; properties && (property = properties[i]); i++) {
         unsigned attributeCount;
-        objc_property_attribute_t *attributes = _nn_property_copyAttributeList(property, &attributeCount);
+        objc_property_attribute_t *attributes = _property_copyAttributeList(property, &attributeCount);
 
         // targetClass is a brand new shiny class, so this should never fail because it already has certain properties (even though its superclass(es) might).
         if(!class_addProperty(targetClass, property_getName(property), attributes, attributeCount)) {
@@ -97,7 +99,9 @@ finished:
     return success;
 }
 
-static objc_property_attribute_t *_nn_property_copyAttributeList(objc_property_t property, unsigned int *outCount)
+#pragma mark Missing runtime functions
+
+static objc_property_attribute_t *_property_copyAttributeList(objc_property_t property, unsigned int *outCount)
 {
     void *(^failure)(void) = ^{
         if (outCount) {
@@ -185,13 +189,15 @@ static objc_property_attribute_t *_nn_property_copyAttributeList(objc_property_t
     return attributeList;
 }
 
+#pragma mark Swizzling safety checks
+
 static BOOL _class_containsNonDynamicProperties(Class aClass)
 {
     objc_property_t *properties = class_copyPropertyList(aClass, NULL);
     BOOL propertyIsDynamic = NO;
     
     for (unsigned i = 0; properties && properties[i]; i++) {
-        objc_property_attribute_t *attributes = _nn_property_copyAttributeList(properties[i], NULL);
+        objc_property_attribute_t *attributes = _property_copyAttributeList(properties[i], NULL);
         
         for (unsigned j = 0; attributes && attributes[j].name; j++) {
             if (!strcmp(attributes[j].name, "D")) { // The property is dynamic (@dynamic).
@@ -220,44 +226,41 @@ static BOOL _class_containsIvars(Class aClass)
     return ivars != 0;
 }
 
+#pragma mark Isa swizzling
+
 static Class _targetClassForObjectWithSwizzlingClass(id anObject, Class aClass)
 {
     Class targetClass = objc_getClass(_classNameForObjectWithSwizzlingClass(anObject, aClass).UTF8String);
     
     if (!targetClass) {
-        // obj must be subclass of class' superclass to guarantee that certain properties are available to the methods being added.
+        const char *swizzlingClassName = class_getName(aClass);
+
         Class sharedAncestor = class_getSuperclass(aClass);
         if (![anObject isKindOfClass:sharedAncestor]) {
-            NSLog(@"Target object %@ must be a subclass of %@.", anObject, sharedAncestor);
+            NSLog(@"Target object %@ must be a subclass of %@ to be swizzled with class %s.", anObject, sharedAncestor, swizzlingClassName);
             return NO;
         }
         
-        // Swizzling class must not contain any uninherited properties
         if (_class_containsNonDynamicProperties(aClass)) {
-            NSLog(@"Swizzling class %s cannot contain non-dynamic properties", class_getName(aClass));
+            NSLog(@"Swizzling class %s cannot contain non-dynamic properties not inherited from its superclass", swizzlingClassName);
             return NO;
         }
         
-        // Swizzling class must not contain any uninherited ivars
         if (_class_containsIvars(aClass)) {
-            NSLog(@"Swizzling class %s cannot contain ivars not inherited from its superclass", class_getName(aClass));
+            NSLog(@"Swizzling class %s cannot contain ivars not inherited from its superclass", swizzlingClassName);
             return NO;
         }
         
-        // Create new custom class
         targetClass = objc_allocateClassPair(object_getClass(anObject), _classNameForObjectWithSwizzlingClass(anObject, aClass).UTF8String, 0);
         
-        // Add methods from source class
         if (!_class_addInstanceMethodsFromClass(targetClass, aClass)) {
             return NO;
         }
         
-        // Add protocols from source class
         if (!_class_addProtocolsFromClass(targetClass, aClass)) {
             return NO;
         }
         
-        // Add properties from source class
         if (!_class_addPropertiesFromClass(targetClass, aClass)) {
             return NO;
         }
