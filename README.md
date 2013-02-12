@@ -20,19 +20,15 @@ Robust isa swizzling is provided using the `nn_object_swizzleIsa` function. The 
 * The object is an instance of the swizzling class's superclass, or a subclass of the swizzling class's superclass.
 * The swizzling class does not add any ivars or non-dynamic properties.
 
-An object has been swizzled by a class if it responds YES to `isKindOfClass:` with the swizzling class as an argument. All the same, it's best to indicate added functionality using protocols on the swizzling class (which can be queried with `conformsToProtocol:`, as usual).
+An object has been swizzled by a class if it responds YES to `isKindOfClass:` with the swizzling class as an argument. Protocols can also be used, and queried using `conformsToProtocol:`, as usual.
 
 To avoid any confusion, your swizzling class should not implement an allocator or initializer. They will never be called for swizzled objects.
 
 #### Usage ####
 
-First, you'll need to define your swizzling class and any of the associated protocols you want to use. For example:
+First, you'll need to define your swizzling class. For example:
 
-    @protocol MYProtocol <NSObject>
-    - (void)dog;
-    @end
-    
-    @interface MYClass : NSObject <MYProtocol>
+    @interface MYClass : NSObject <NSDog>
     @property (nonatomic, readonly) NSUInteger random;
     - (void)duck;
     @end
@@ -54,7 +50,7 @@ To swizzle your object and use its newfound functionality, just call `nn_object_
         if ([bar isKindOfClass:[MYClass class]]) {
             [(MYClass *)bar duck];
         }
-        if ([bar conformsToProtocol:@protocol(MYProtocol)]) {
+        if ([bar conformsToProtocol:@protocol(NSDog)]) {
             [(id<MYProtocol>)bar dog];
         }
     }
