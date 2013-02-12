@@ -32,7 +32,7 @@ static BOOL _object_swizzleIsa(id anObject, Class aClass) __attribute__((nonnull
 
 static NSString *_prefixForSwizzlingClass(Class aClass)
 {
-    return [NSString stringWithFormat:@"%s_", class_getName(aClass)];
+    return [NSString stringWithFormat:@"SwizzledWith%s_", class_getName(aClass)];
 }
 
 static NSString * _classNameForObjectWithSwizzlingClass(id anObject, Class aClass)
