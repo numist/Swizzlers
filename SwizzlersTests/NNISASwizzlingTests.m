@@ -147,8 +147,8 @@
     
     STAssertTrue(nn_object_swizzleIsa(bar, [ISAGood class]), @"Failed to swizzle object");
     
-    STAssertTrue([bar respondsToSelector:@selector(actualClass)], @"Object is not swizzled correctly");
-    STAssertNoThrow([bar performSelector:@selector(actualClass)], @"Internal swizzle method actualClass not implemented?");
+    STAssertTrue([bar respondsToSelector:@selector(_swizzler_actualClass)], @"Object is not swizzled correctly");
+    STAssertNoThrow([bar performSelector:@selector(_swizzler_actualClass)], @"Internal swizzle method actualClass not implemented?");
 }
 
 - (void)testGood;

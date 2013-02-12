@@ -44,27 +44,19 @@ static void *_NNSwizzleSuperclassKey = (void *)1466409828; // arc4rand(), since 
     return superclass;
 }
 
-- (Class)actualClass
+- (Class)_swizzler_actualClass
 {
     return object_getClass(self);
 }
 
 - (BOOL)conformsToProtocol:(Protocol *)aProtocol
 {
-    if ([[self actualClass] conformsToProtocol:aProtocol]) {
-        return YES;
-    }
-    
-    return [super conformsToProtocol:aProtocol];
+    return [[self _swizzler_actualClass] conformsToProtocol:aProtocol];
 }
 
 - (BOOL)respondsToSelector:(SEL)aSelector
 {
-    if ([[self actualClass] instancesRespondToSelector:aSelector]) {
-        return YES;
-    }
-    
-    return [super respondsToSelector:aSelector];
+    return [[self _swizzler_actualClass] instancesRespondToSelector:aSelector];
 }
 
 - (BOOL)isKindOfClass:(Class)aClass;
