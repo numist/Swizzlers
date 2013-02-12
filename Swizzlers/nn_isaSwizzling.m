@@ -273,9 +273,7 @@ static Class _targetClassForObjectWithSwizzlingClass(id anObject, Class aClass)
 
 static BOOL _object_swizzleIsa(id anObject, Class aClass)
 {
-    if (nn_alreadySwizzledObjectWithSwizzlingClass(anObject, aClass)) {
-        return YES;
-    }
+    assert(!nn_alreadySwizzledObjectWithSwizzlingClass(anObject, aClass));
     
     Class targetClass = _targetClassForObjectWithSwizzlingClass(anObject, aClass);
     
@@ -294,7 +292,7 @@ BOOL nn_alreadySwizzledObjectWithSwizzlingClass(id anObject, Class aClass)
 {
     NSString *classPrefix = _prefixForSwizzlingClass(aClass);
     
-    for(Class candidate = object_getClass(anObject); candidate != nil; candidate = class_getSuperclass(candidate)) {
+    for (Class candidate = object_getClass(anObject); candidate; candidate = class_getSuperclass(candidate)) {
         if ([[NSString stringWithUTF8String:class_getName(candidate)] hasPrefix:classPrefix]) {
             return YES;
         }
@@ -316,7 +314,7 @@ BOOL nn_object_swizzleIsa(id anObject, Class aClass) {
             success = _object_swizzleIsa(anObject, [NNISASwizzledObject class]);
         }
         
-        if (success) {
+        if (success && !nn_alreadySwizzledObjectWithSwizzlingClass(anObject, aClass)) {
             success = _object_swizzleIsa(anObject, aClass);
         }
     }
