@@ -30,7 +30,14 @@ static void *_NNSwizzleSuperclassKey = (void *)1466409828; // arc4rand(), since 
     objc_setAssociatedObject(anObject, _NNSwizzleSuperclassKey, [anObject class], OBJC_ASSOCIATION_ASSIGN);
 }
 
-#pragma mark Swizzled object overrides.
+#pragma mark Private swizzled methods
+
+- (Class)_swizzler_actualClass
+{
+    return object_getClass(self);
+}
+
+#pragma mark Swizzled object overrides
 
 - (Class)class
 {
@@ -42,11 +49,6 @@ static void *_NNSwizzleSuperclassKey = (void *)1466409828; // arc4rand(), since 
     }
     
     return superclass;
-}
-
-- (Class)_swizzler_actualClass
-{
-    return object_getClass(self);
 }
 
 - (BOOL)conformsToProtocol:(Protocol *)aProtocol
